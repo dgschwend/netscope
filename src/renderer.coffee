@@ -7,7 +7,7 @@ class Renderer
         @iconify = false
         @layoutDirection = 'tb'
         @generateGraph()
-        @renderTable()
+        @renderTable() 
 
     setupGraph: ->
         @graph = new dagreD3.graphlib.Graph()
@@ -43,16 +43,16 @@ class Renderer
         for sink in @graph.sinks()
             (@graph.node sink).class = 'node-type-sink'
         @render()
-
+        
     generateTable: ->
         entry = {name: 'start'}
         tbl = []
         id = 0
         worstcasepervariant = null
-
+        
         # Build up Layer Table
-        for n in @net.sortTopologically()
-
+        for n in @net.sortTopologically()            
+            
             # summarize Values in Variant Implementations
             if (do_variants_analysis)
                 if (n.analysis.variants.length > 0)
@@ -62,7 +62,7 @@ class Renderer
                     for variant,idx in variantcopy
                         worstcasepervariant[idx][key] = val for key,val of variant when worstcasepervariant[idx][key] < val
                         variant[key] = @toSuffixForm(val) for key,val of variant when val > 0
-
+            
             id++
             entry = {
                 ID: id
@@ -74,10 +74,10 @@ class Renderer
                 dim_out: n.analysis.wOut+'x'+n.analysis.hOut
                 ops_raw: n.analysis.comp
                 mem_raw: n.analysis.mem
-            }
+            }         
             if (do_variants_analysis) then entry.implementations = n.analysis.variants;
             tbl.push(entry)
-
+        
         if (do_variants_analysis and worstcasepervariant)
             # worst case variant summary
             for variant in worstcasepervariant
@@ -89,7 +89,7 @@ class Renderer
             }
             tbl.push(entry)
         return tbl
-
+        
     toSuffixForm: (num, decimals = 2) ->
         exponents = [12,  9,  6,  3]
         suffices  = ["T","G","M","k"]
@@ -102,7 +102,7 @@ class Renderer
                 return Math.round(num/factor*decimals)/decimals+suffix
         # too small, no suffix
         return num
-
+        
     summarizeTable: (tbl) ->
         entry = {name: 'start'}
         summary = []
@@ -115,7 +115,7 @@ class Renderer
                 entry.type = 'submodule('+num_subs+')'
                 entry.ch_out = n.ch_out
                 entry.dim_out = n.dim_out
-                entry.ops_raw[key] += n.ops_raw[key] for key of entry.ops_raw
+                entry.ops_raw[key] += n.ops_raw[key] for key of entry.ops_raw               
                 entry.mem_raw[key] += n.mem_raw[key] for key of entry.mem_raw
                 entry.ops[key] = @toSuffixForm(val) for key,val of entry.ops_raw when val > 0
                 entry.mem[key] = @toSuffixForm(val) for key,val of entry.mem_raw when val > 0
@@ -139,8 +139,8 @@ class Renderer
                 }
                 entry.ops[key] = @toSuffixForm(val) for key,val of entry.ops_raw when val > 0
                 entry.mem[key] = @toSuffixForm(val) for key,val of entry.mem_raw when val > 0
-                summary.push(entry)
-
+                summary.push(entry)     
+        
         # initialize TOTAL row
         total = {name: 'TOTAL', ops_raw: {}, mem_raw: {}, ops: {}, mem: {}}
         _.extend(total.ops_raw, summary[0].ops_raw) # copy zeros from data layer
@@ -148,34 +148,34 @@ class Renderer
         for entry in summary
             #debugger
             total.ops_raw[key] += entry.ops_raw[key] for key of entry.ops_raw
-            total.mem_raw[key] += entry.mem_raw[key] for key of entry.mem_raw
+            total.mem_raw[key] += entry.mem_raw[key] for key of entry.mem_raw          
         total.ops[key] = @toSuffixForm(val) for key,val of total.ops_raw
-        total.mem[key] = @toSuffixForm(val) for key,val of total.mem_raw
-        summary.push(total)
+        total.mem[key] = @toSuffixForm(val) for key,val of total.mem_raw      
+        summary.push(total) 
         summary_without_raw = (_.omit(entry, ['ops_raw','mem_raw']) for entry in summary)
         return summary_without_raw
-
+        
     renderTable: ->
         # Generate Detail Table and Summary
         detail = @generateTable()
         summary = @summarizeTable(detail)
         $(@table).html('<h3>Summary:</h3>'+Tableify(summary)+
                        '<h3>Details:</h3>'+Tableify(detail));
-
+                       
         # Add Sorting Headers
         $(@table+' table').tablesorter()
-
+        
         # Add Click-to-Scroll Handlers
         # Closure Function that executes scroll:
         scroll_to = (el) ->
-            return () ->
+            return () -> 
                 top_coord = $(el).offset().top-200;
                 $("body,html").animate({ scrollTop: top_coord }, 200);
                 $(el).addClass 'node-highlight'
-                removeHighlight = (node) ->
+                removeHighlight = (node) -> 
                     return () -> $(node).removeClass 'node-highlight'
                 window.setTimeout removeHighlight(el), 4000
-
+                
         # Add Click-to-Scroll to all summary rows, except last
         summary_table = $(@table+' table')[0]
         summary_body = summary_table.children[1]
@@ -186,11 +186,11 @@ class Renderer
             $node_elem  = $('div[id^="node-'+$table_elem.text()+'"]')
             $table_elem.click( scroll_to $node_elem )
             $node_elem.click( scroll_to $table_elem )
-
+         
         if do_variants_analysis
             # Calculate Per-Layer Statistics
             areatbl = []
-            for entry in detail when (entry.type == "Convolution" or entry.type == "Concat" or entry.type == "SoftmaxWithLoss" or entry.type == "innerproduct")
+            for entry in detail when (entry.type == "Convolution" or entry.type == "Concat" or entry.type == "SoftmaxWithLoss")
                 # extract input dimension:
                 dim_in = entry.dim_in?.split("x").pop()
                 # add entry
@@ -233,9 +233,9 @@ class Renderer
 
     insertLink: (src, dst) ->
         if not @iconify
-            lbl = src.analysis.chOut+'ch ⋅ '+src.analysis.wOut+'×'+src.analysis.hOut
+            lbl = src.analysis.chOut+'ch ⋅ '+src.analysis.wOut+'×'+src.analysis.hOut     
         else
-            lbl = ''
+            lbl = ''                  
         @graph.setEdge(src.name, dst.name, { arrowhead: 'vee', label: lbl } );
 
     renderKey:(key) ->

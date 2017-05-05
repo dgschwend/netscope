@@ -63,11 +63,15 @@ module.exports =
                     pad_w    = params.pad_w ? (params.pad ? 0)
                     pad_h    = params.pad_h ? (params.pad ? 0)
                     numout   = params.num_output
-                    group    = params.group
+                    group    = params.group ? 1
+                    dilation = params.dilation ? 1
 
                     # according to http://caffe.berkeleyvision.org/tutorial/layers.html and https://github.com/BVLC/caffe/issues/3656
-                    d.wOut = Math.floor((d.wIn + 2*pad_w - kernel_w) / stride_w) + 1
-                    d.hOut = Math.floor((d.hIn + 2*pad_h - kernel_h) / stride_h) + 1
+                    kernel = dilation*(kernel_w-1)+1
+                    d.wOut = Math.floor((d.wIn + 2*pad_w - kernel) / stride_w) + 1
+                    kernel = dilation*(kernel_h-1)+1
+                    d.hOut = Math.floor((d.hIn + 2*pad_h - kernel) / stride_h) + 1
+
                     d.chOut = numout
                     #computation
                     d.comp.macc = (kernel_w*kernel_h)*(d.wOut*d.hOut)*d.chIn*d.chOut*d.batchOut/group

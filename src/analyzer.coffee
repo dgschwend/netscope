@@ -205,7 +205,6 @@ module.exports =
                     d.hOut = d.hIn
                     # sum up= channels from inputs
                     d.chIn += p.analysis.chOut for p in n.parents
-                    d.chIn = 2/3*d.chIn
                     d.chOut = d.chIn
                     # check input dimensions
                     failed = failed || (p.analysis.wOut != d.wIn || p.analysis.hOut != d.hIn) for p in n.parents

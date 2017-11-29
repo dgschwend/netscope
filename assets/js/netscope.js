@@ -16171,6 +16171,7 @@ module.exports = Analyzer = (function() {
           break;
         case "relu":
         case "dropout":
+        case "power":
           d.wIn = parent.wOut;
           d.hIn = parent.hOut;
           d.wOut = d.wIn;
@@ -18697,15 +18698,15 @@ function tableify(obj, columns, parents) {
         else {
             buf.push('<table>','<tbody>');
             cols = [];
-            
+
             obj.forEach(function (val, ix) {
                 cols.push(ix);
                 buf.push('<tr>', '<td' + getClass(val) + '>', tableify(val, cols, parents), '</td>', '</tr>');
             });
-            
+
             buf.push('</tbody>','</table>');
         }
-        
+
     }
     else if (obj && typeof obj === 'object' && !Array.isArray(obj) && !(obj instanceof Date)) {
         if (!columns) {
@@ -18742,9 +18743,9 @@ function tableify(obj, columns, parents) {
 }
 
 function getClass(obj) {
-    return ' class="' 
+    return ' class="'
         + ((obj && obj.constructor)
-            ? obj.constructor.name 
+            ? obj.constructor.name
             : typeof obj
         ).toLowerCase()
         + ((obj === null)

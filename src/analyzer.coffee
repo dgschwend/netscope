@@ -223,7 +223,7 @@ module.exports =
                     d.mem.activation = d.wOut*d.hOut*d.chOut*d.batchOut
 
                 #relu/dropout use some memory, do some comparisons
-                when "relu", "elu", "prelu", "dropout"
+                when "relu", "relu6", "elu", "prelu", "dropout"
                     #dimensions
                     d.wIn = parent.wOut
                     d.hIn = parent.hOut

@@ -16343,6 +16343,7 @@ module.exports = Analyzer = class Analyzer {
           break;
         //relu/dropout use some memory, do some comparisons
         case "relu":
+        case "relu6":
         case "elu":
         case "prelu":
         case "dropout":

@@ -74,8 +74,13 @@ module.exports =
                     d.hOut = Math.floor((d.hIn + 2*pad_h - kernel) / stride_h) + 1
 
                     d.chOut = numout
+                    n = (kernel_w*kernel_h)*d.chIn # vector_length
+                    flops_per_instance = n + (n - 1) # general defination for number of flops (n: multiplications and n-1: additions)
+                    num_instances_per_filter = (d.wOut*d.hOut)
+                    flops_per_filter = num_instances_per_filter * flops_per_instance
+                    total_flops_per_layer_per_batch = flops_per_filter * d.chOut
                     #computation
-                    d.comp.macc = (kernel_w*kernel_h)*(d.wOut*d.hOut)*d.chIn*d.chOut*d.batchOut/group
+                    d.comp.macc = total_flops_per_layer_per_batch*d.batchOut/group + has_bias * d.chOut
                     #memory
                     d.mem.param = (kernel_w*kernel_h)*d.chIn*d.chOut/group + has_bias*d.chOut
                     d.mem.activation = (d.wOut*d.hOut)*d.chOut*d.batchOut

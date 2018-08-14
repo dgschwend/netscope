@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "coffeeify": "^3.0.1",
+    "tableify": "^1.1.0",
+    "tablesorter": "2.26",
+    "watchify": "^3.11.0"
+  },
+  "devDependencies": {
+    "coffeescript": "^2.3.1"
+  }
+}

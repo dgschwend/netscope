@@ -53,7 +53,7 @@ module.exports =
                     #-- none
                     d.mem.activation = d.wOut*d.hOut*d.chOut*d.batchOut
 
-                when "convolution"
+                when "convolution", "convolutiondepthwise"
                     #dimensions
                     params   = n.attribs.convolution_param
                     kernel_w = params.kernel_w ? params.kernel_size
@@ -74,10 +74,15 @@ module.exports =
                     d.hOut = Math.floor((d.hIn + 2*pad_h - kernel) / stride_h) + 1
 
                     d.chOut = numout
-                    #computation
-                    d.comp.macc = (kernel_w*kernel_h)*(d.wOut*d.hOut)*d.chIn*d.chOut*d.batchOut/group
-                    #memory
-                    d.mem.param = (kernel_w*kernel_h)*d.chIn*d.chOut/group + has_bias*d.chOut
+                    if (layertype == "convolution")
+                        #computation
+                        d.comp.macc = (kernel_w*kernel_h)*(d.wOut*d.hOut)*d.chIn*d.chOut*d.batchOut/group
+                        #memory
+                        d.mem.param = (kernel_w*kernel_h)*d.chIn*d.chOut/group + has_bias*d.chOut
+                    else  # convolutiondepthwise
+                        d.comp.macc = (kernel_w*kernel_h)*(d.wOut*d.hOut)*d.chIn*d.batchOut + (d.wOut*d.hOut)*d.chIn*d.chOut*d.batchOut/group
+                        d.mem.param = (kernel_w*kernel_h)*d.chIn + has_bias*d.chIn + d.chIn*d.chOut/group + has_bias*d.chOut
+
                     d.mem.activation = (d.wOut*d.hOut)*d.chOut*d.batchOut
 
                     # CACHE AND BANDWIDTH for Implementation Variants
@@ -341,8 +346,8 @@ module.exports =
                     d.mem.activation = d.wOut*d.hOut*d.chOut*d.batchOut
                     d.mem.activation = 0 if isNaN(d.mem.activation)
 
-                # accuracy layers just pass through
-                when "accuracy"
+                # accuracy and shufflechannel layers just pass through
+                when "accuracy", "shufflechannel"
                     #dimensions
                     ## assume pass-through
                     d.wOut = d.wIn

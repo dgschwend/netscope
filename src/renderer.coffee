@@ -193,7 +193,7 @@ class Renderer
         if do_variants_analysis
             # Calculate Per-Layer Statistics
             areatbl = []
-            for entry in detail when (entry.type == "Convolution" or entry.type == "Concat" or entry.type == "SoftmaxWithLoss" or entry.type == "innerproduct")
+            for entry in detail when (entry.type == "Convolution" or entry.type == "ConvolutionDepthwise" or entry.type == "Concat" or entry.type == "SoftmaxWithLoss" or entry.type == "innerproduct")
                 # extract input dimension:
                 dim_in = entry.dim_in?.split("x").pop()
                 # add entry
